@@ -1,0 +1,1 @@
+sudo ln -s '/mnt/c/Users/amolk/AppData/Local/Programs/PyCharm Professional/bin/pycharm64.exe' /usr/local/bin/pycharm
