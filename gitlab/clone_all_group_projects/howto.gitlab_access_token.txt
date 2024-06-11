@@ -1,0 +1,8 @@
+https://gitlab.com/-/user_settings/personal_access_tokens
+
+token name -> clone_all_group_projects_token
+
+[v] read_api
+[v] read_repository
+
+button -> create personal access token
