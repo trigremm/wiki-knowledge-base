@@ -1,0 +1,5 @@
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/github_asmo_z6_id_rsa
+  IdentitiesOnly yes
