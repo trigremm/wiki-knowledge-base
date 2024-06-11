@@ -1,0 +1,7 @@
+https://github.com/settings/tokens
+
+Generate new token -> Generate new token (classic)
+
+[v] repo ... Full control of private repositories
+
+button -> generate token
