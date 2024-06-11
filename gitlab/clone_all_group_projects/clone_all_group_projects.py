@@ -2,8 +2,7 @@ import os
 
 import gitlab
 
-from env_variables import ACCESS_TOKEN, GROUP_ID, CLONE_DIR
-
+from env_variables import ACCESS_TOKEN, CLONE_DIR, GROUP_ID
 
 # Setup
 gl = gitlab.Gitlab("https://gitlab.com", private_token=ACCESS_TOKEN)
