@@ -3,3 +3,10 @@ Host github.com
   User git
   IdentityFile ~/.ssh/github_asmo_z6_id_rsa
   IdentitiesOnly yes
+
+Host gitlab.com
+  HostName gitlab.com
+  User git
+  IdentityFile ~/.ssh/gitlab_asmo_z6_id_rsa
+  IdentitiesOnly yes
+

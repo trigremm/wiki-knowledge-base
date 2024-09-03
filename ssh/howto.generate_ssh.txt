@@ -1,3 +1,7 @@
 ssh-keygen -b 2048 -t rsa -f ~/.ssh/github_asmo_z6_id_rsa -C github_asmo_z6_id_rsa -q -N ""
 
 ssh -T git@github.com
+
+ssh-keygen -b 2048 -t rsa -f ~/.ssh/gilab_asmo_z6_id_rsa -C gilab_asmo_z6_id_rsa -q -N ""
+
+ssh -T git@gitlab.com
