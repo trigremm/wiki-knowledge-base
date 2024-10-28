@@ -2,7 +2,6 @@ import argparse
 
 from loguru import logger
 
-
 RUN_SAMPLE = """
 python project/generate_howto_deploy.py -w www.example.com -r https://github.com/path_to_repo
 """

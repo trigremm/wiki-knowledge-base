@@ -1,7 +1,6 @@
 import os
 
 import requests
-
 from env_variables import CLONE_DIR, GITHUB_TOKEN, ORG_NAME
 
 headers = {
@@ -23,9 +22,7 @@ def clone_repos():
             break
 
         for repo in data:
-            os.system(
-                f"git clone {repo['ssh_url']} {os.path.join(CLONE_DIR, repo['name'])}"
-            )
+            os.system(f"git clone {repo['ssh_url']} {os.path.join(CLONE_DIR, repo['name'])}")
 
         if "next" not in response.links:
             break
