@@ -1,4 +1,5 @@
 #!/bin/bash
+# https://github.com/trigremm/wiki_best_practices/blob/main/bonus.d/utils.d/generate_prompt.sh
 
 # Initialize an empty prompt.txt
 > prompt.txt

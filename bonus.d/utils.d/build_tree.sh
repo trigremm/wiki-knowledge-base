@@ -1,4 +1,5 @@
 #!/bin/bash
+# https://github.com/trigremm/wiki_best_practices/blob/main/bonus.d/utils.d/build_tree.sh
 
 # Default ignore list
 DEFAULT_IGNORE=(

@@ -1,4 +1,5 @@
 # bonus.d/utils.d/add_file_path_comment.py
+# https://github.com/trigremm/wiki_best_practices/blob/main/bonus.d/utils.d/add_file_path_comment.py
 import argparse
 import os
 import sys
