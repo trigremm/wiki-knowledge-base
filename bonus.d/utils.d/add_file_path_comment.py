@@ -7,7 +7,7 @@ import sys
 default_ignore_files = [
     "manage.py",
 ]
-default_ignore_dirs = ["migrations", "node_modules", "dist", "build"]
+default_ignore_dirs = ["migrations", "node_modules", "dist", "build", ".docker_volumes", ".git", ".venv"]
 
 process_extensions = (".py", ".html", ".js", ".ts", ".vue", ".yaml", ".yml", ".hurl")
 
