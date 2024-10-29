@@ -1,0 +1,94 @@
+# dc.d/docker-compose.yaml
+# docker run -it ubuntu:20.04 bash
+# echo 'url_to_repo' | md5sum -  | tr -cd '[[:digit:]]' | awk '{print substr($0,1,2)}'
+#  25
+# 8250
+
+# TODO update after several uses
+name: ${COMPOSE_PROJECT_NAME:?err}
+
+services:
+  postgres:
+    container_name: postgres
+    platform: linux/amd64
+    image: postgres:latest
+    ports:
+      - "8252:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    volumes:
+      - ${POSTGRES_DATA_PATH:?err}:/var/lib/postgresql/data
+      - ${POSTGRES_BACKUP_PATH:?err}:/backups
+
+  redis:
+    container_name: redis
+    platform: linux/amd64
+    image: redis:latest
+    ports:
+      - "8259:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    volumes:
+      - ${REDIS_DATA_PATH:?err}:/data
+
+  rabbitmq:
+    container_name: rabbitmq
+    platform: linux/amd64
+    image: rabbitmq:latest
+    ports:
+      - "8256:5672"
+      - "8257:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    volumes:
+      - ${RABBITMQ_DATA_PATH:?err}:/var/lib/rabbitmq
+
+  frontend:
+    container_name: frontend
+    platform: linux/amd64
+    image: node:14
+    ports:
+      - "8250:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    container_name: backend
+    platform: linux/amd64
+    image: python:3.9
+    ports:
+      - "8498:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy

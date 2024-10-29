@@ -1,0 +1,20 @@
+# from project root
+BACKEND_ROOT='../backend'
+
+mkdir -p ${BACKEND_ROOT:?err}
+ls ${BACKEND_ROOT:?err}
+
+# from django_app
+docker run -it --rm -w /app -v $(pwd)/${BACKEND_ROOT:?err}:/app python:3.12.3-slim-bookworm /bin/bash
+
+# from container shell
+pip install poetry==1.8.2
+poetry init
+poetry install
+exit
+
+# or
+rm poetry.lock
+poetry update
+
+# fresh install
