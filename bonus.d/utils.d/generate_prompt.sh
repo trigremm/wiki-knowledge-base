@@ -13,6 +13,7 @@ DEFAULT_IGNORE=(
     .DS_Store
     .vscode
     .idea
+    .venv
     .docker_volumes
     __pycache__
     node_modules
