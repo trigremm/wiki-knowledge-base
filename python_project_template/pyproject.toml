@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "asmo.d"
+version = "0.1.0"
+dependencies = [
+    "pydantic-settings",
+]
+
+
+[project.optional-dependencies]
+# uv pip install ".[dev]"
+dev = [
+    "ruff",
+    "black",
+    "isort",
+    "flake8",
+    "pytest",
+    "ipython"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/app"]
+
+[tool.uv]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = [
+    "app",
+    "tests",
+]
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "migrations",
+    "__pycache__",
+    "build",
+    "dist"
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "D",   # pydocstyle
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "S",   # flake8-bandit (security)
+    "RUF", # Ruff-specific rules
+]
+
+
+
+[tool.ruff.lint.extend-per-file-ignores]
+"*" = ["F401"]  # Ignore unused imports globally
+# "__init__.py" = ["F401"] # Ignore unused imports in __init__.py
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[lint.flake8-bandit]
+check-typed-exception = true
+
+[lint.mccabe]
+max-complexity = 15
+
+[lint.pydocstyle]
+convention = "google"
