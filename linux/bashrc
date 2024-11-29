@@ -1,4 +1,20 @@
 alias ff='make format'
 alias cdd='cd ~/projects/'
 
+alias maek='make'
+alias mkae='make'
+alias meak='make'
+alias amke='make'
+alias amek='make'
+alias akme='make'
+alias aemk='make'
+
 conda activate py312
+
+# from itertools import permutations
+
+# permutations_list = permutations("make")
+# permutations_list = [''.join(i) for i in permutations_list]
+# permutations_list = [i for i in permutations_list if i.startswith(('a','m')) and i.endswith(('k','e'))]
+# for i in permutations_list:
+#     print(f"alias {i}='make'")
