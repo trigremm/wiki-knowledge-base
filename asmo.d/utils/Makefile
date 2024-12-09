@@ -1,4 +1,5 @@
 # bonus.d/Makefile
+
 add_file_path_comment:
 	@echo python ./bonus.d/utils.d/add_file_path_comment.py ./
 
