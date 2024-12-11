@@ -17,6 +17,10 @@ export GIT_COMMIT_MESSAGE=$(shell git log -1 --pretty=%B)
 
 all: ps
 
+docker-stop-all:
+	@echo 'docker stop $$(docker ps -a -q)'
+	@echo docker ps -a
+
 gitinfo:
 	@echo "Git Commit ID: $(GIT_COMMIT_ID)"
 	@echo "Git Commit Date: $(GIT_COMMIT_DATE)"
@@ -27,10 +31,6 @@ ps: gitinfo
 
 logs:
 	while true; do $(DC_BIN) logs -f --tail=100 ; sleep 10; done
-
-docker-stop-all:
-	@echo 'docker stop $$(docker ps -a -q)'
-	@echo docker ps -a
 
 prune-containers:
 	docker container prune -f
@@ -51,6 +51,7 @@ up:
 
 stop:
 	$(DC_BIN) stop
+	# $(MAKE) prune-containers
 
 down:
 	$(DC_BIN) down
