@@ -2,18 +2,30 @@
 # https://github.com/trigremm/wiki_best_practices/blob/main/bonus.d/utils.d/add_file_path_comment.py
 import argparse
 import os
-import sys
 
 default_ignore_files = [
     "manage.py",
 ]
-default_ignore_dirs = ["migrations", "node_modules", "dist", "build", ".docker_volumes", ".git", ".venv"]
+default_ignore_dirs = [
+    "migrations",
+    "node_modules",
+    "dist",
+    "build",
+    ".docker_volumes",
+    ".git",
+    ".venv",
+]
 
 process_extensions = (".py", ".html", ".js", ".ts", ".vue", ".yaml", ".yml", ".hurl")
 
 
 def get_comment_syntax(file_name, file_extension):
-    if file_name in ["Dockerfile", "Makefile"] or file_extension in [".py", ".yaml", ".yml", ".hurl"]:
+    if file_name in ["Dockerfile", "Makefile"] or file_extension in [
+        ".py",
+        ".yaml",
+        ".yml",
+        ".hurl",
+    ]:
         return "#"
     elif file_extension in [".js", ".ts"]:
         return "//"
@@ -32,7 +44,10 @@ def add_file_path_comment(root_dir: str, ignore_files: list, ignore_dirs: list) 
             file_name, file_extension = os.path.splitext(file)
             file_extension = file_extension.lower()
 
-            if file_extension in process_extensions or file in ["Dockerfile", "Makefile"]:
+            if file_extension in process_extensions or file in [
+                "Dockerfile",
+                "Makefile",
+            ]:
                 if file in ignore_files:
                     continue
 
@@ -89,9 +104,24 @@ def add_file_path_comment(root_dir: str, ignore_files: list, ignore_dirs: list) 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Add file path comments to project files.")
-    parser.add_argument("project_directory", nargs="?", default=".", help="The root directory of the project")
-    parser.add_argument("--ignore-files", nargs="*", default=default_ignore_files, help="List of files to ignore")
-    parser.add_argument("--ignore-dirs", nargs="*", default=default_ignore_dirs, help="List of directories to ignore")
+    parser.add_argument(
+        "project_directory",
+        nargs="?",
+        default=".",
+        help="The root directory of the project",
+    )
+    parser.add_argument(
+        "--ignore-files",
+        nargs="*",
+        default=default_ignore_files,
+        help="List of files to ignore",
+    )
+    parser.add_argument(
+        "--ignore-dirs",
+        nargs="*",
+        default=default_ignore_dirs,
+        help="List of directories to ignore",
+    )
 
     args = parser.parse_args()
 
