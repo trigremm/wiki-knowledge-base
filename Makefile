@@ -1,5 +1,5 @@
 # fallback command
-ASMO_PATH := asmo.d
+ASMO_PATH := asmo.d/utils
 
 black-format:
 	black . --line-length 120

@@ -35,13 +35,15 @@ declare -a exclude_extensions
 
 # Default ignore list (directories/files to skip)
 DEFAULT_IGNORE=(
-    .git
-    .DS_Store
-    .vscode
     .idea
+    .vscode
+    .DS_Store
+    .git
     .venv
     .docker_volumes
+    asmo.d
     __pycache__
+    migrations
     node_modules
     dist
     build

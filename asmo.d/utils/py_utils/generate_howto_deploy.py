@@ -5,7 +5,7 @@ import argparse
 from loguru import logger
 
 RUN_SAMPLE = """
-python dc.d/wiki.d/generate_howto_deploy.py -w www.example.com -r https://github.com/alphaedu-tech/mnu_telegram_bot
+python generate_howto_deploy.py -w www.url.to.site -r https://github.com/path/to/repo
 """
 
 HOWTO_TEMPLATE = """
