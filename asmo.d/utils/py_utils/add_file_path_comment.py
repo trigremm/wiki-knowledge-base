@@ -16,7 +16,16 @@ default_ignore_dirs = [
     ".venv",
 ]
 
-process_extensions = (".py", ".html", ".js", ".ts", ".vue", ".yaml", ".yml", ".hurl")
+process_extensions = [
+    ".py",
+    ".html",
+    ".js",
+    ".ts",
+    ".vue",
+    ".yaml",
+    ".yml",
+    ".hurl",
+]
 
 
 def get_comment_syntax(file_name, file_extension):
