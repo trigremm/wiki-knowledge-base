@@ -37,8 +37,8 @@ make up
 
 # add site config to nginx
 rm -rf /etc/nginx/sites-available/{www_domain} /etc/nginx/sites-enabled/{www_domain}
-ls -alsht dc.d/conf.d/{www_domain}
-cp dc.d/conf.d/{www_domain} /etc/nginx/sites-available/{www_domain}
+ls -alsht asmo.d/sites/{www_domain}
+cp asmo.d/sites/{www_domain} /etc/nginx/sites-available/{www_domain}
 ln -s /etc/nginx/sites-available/{www_domain} /etc/nginx/sites-enabled/{www_domain}
 nginx -t && nginx -s reload
 

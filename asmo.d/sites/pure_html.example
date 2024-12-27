@@ -1,0 +1,49 @@
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    # Reverse proxy to the Docker container serving your static files
+    location / {
+        proxy_pass http://localhost:8080; # Replace with the port where your Docker container is running
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # GZIP compression for proxied responses
+        gzip on;
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_buffers 16 8k;
+        gzip_http_version 1.1;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+        # Security headers
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+        # Content Security Policy
+        add_header Content-Security-Policy "
+            default-src 'self';
+            script-src 'self' 'unsafe-inline';
+            style-src 'self' 'unsafe-inline';
+            img-src 'self' data:;
+            font-src 'self' data:;
+        " always;
+    }
+
+    # Block access to sensitive files
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    # Custom error page for 404
+    error_page 404 /404.html;
+    location = /404.html {
+        root /usr/share/nginx/html; # Adjust if a custom 404.html exists in the container
+        internal;
+    }
+}
