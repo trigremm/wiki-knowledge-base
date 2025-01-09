@@ -1,3 +1,4 @@
+# asmo.d/dc/docker-compose.yml
 # docker run -it ubuntu:20.04 bash
 # echo 'url_to_repo' | md5sum -  | tr -cd '[[:digit:]]' | awk '{print substr($0,1,2)}'
 #  25

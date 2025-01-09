@@ -1,11 +1,13 @@
-# dc.d/wiki.d/generate_howto_deploy.py
-# version 2024-06-18
+# asmo.d/utils/py_utils/generate_howto_deploy.py
+# version 2025-01-09
 import argparse
+import os
+from pathlib import Path
 
 from loguru import logger
 
 RUN_SAMPLE = """
-python generate_howto_deploy.py -w www.url.to.site -r https://github.com/path/to/repo
+python generate_howto_deploy.py -w www.url.to.site -r https://github.com/path/to/repo [-o output_directory]
 """
 
 HOWTO_TEMPLATE = """
@@ -56,27 +58,43 @@ systemctl restart nginx
 def validate_repo_url(repo_url):
     if not repo_url.startswith(("https://gitlab.com/", "https://github.com/")):
         raise argparse.ArgumentTypeError("Repo URL must start with 'https://gitlab.com/' or 'https://github.com/'")
+    return repo_url
+
+
+def validate_output_dir(directory):
+    """Validate and create output directory if it doesn't exist."""
+    path = Path(directory)
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        return str(path)
+    except Exception as e:
+        raise argparse.ArgumentTypeError(f"Error creating directory {directory}: {str(e)}")
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Process a domain and a Git URL.")
 
     parser.add_argument("-w", "--www_domain", help="The domain, must start with 'www.'")
-    parser.add_argument("-r", "--repo_url", help="The Repo URL")
+    parser.add_argument("-r", "--repo_url", type=validate_repo_url, help="The Repo URL")
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=validate_output_dir,
+        default=".",
+        help="Output directory (default: current directory)",
+    )
 
     args = parser.parse_args()
-
-    return args.www_domain, args.repo_url
+    return args.www_domain, args.repo_url, args.output
 
 
 def main():
-    www_domain, repo_url = parse_args()
-    logger.info(f"{(www_domain, repo_url)=}")
+    www_domain, repo_url, output_dir = parse_args()
+    logger.info(f"{(www_domain, repo_url, output_dir)=}")
+
     if not repo_url:
         print(RUN_SAMPLE)
         return
-
-    validate_repo_url(repo_url)
 
     project_name = repo_url.strip("/").split("/")[-1]
 
@@ -94,10 +112,11 @@ def main():
         git_url=git_url,
     )
 
-    with open("howto.deploy.txt", "w") as f:
+    output_file = os.path.join(output_dir, "howto.deploy.txt")
+    with open(output_file, "w") as f:
         f.write(template)
 
-    logger.success("howto.deploy.txt generated")
+    logger.success(f"howto.deploy.txt generated in {output_dir}")
 
 
 if __name__ == "__main__":

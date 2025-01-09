@@ -1,4 +1,4 @@
-# fastapi_backend/oraclus_netflow/configs/env_settings.py
+# gitlab/clone_all_group_projects/env_variables.py
 from pydantic_settings import BaseSettings
 
 

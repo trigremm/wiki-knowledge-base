@@ -1,4 +1,4 @@
-# bonus.d/Makefile
+# asmo.d/utils/Makefile
 CURRENT_DIR := "asmo.d/utils"
 BASH_UTILD_DIR := "${CURRENT_DIR}/bash_utils"
 PY_UTILD_DIR := "${CURRENT_DIR}/py_utils"

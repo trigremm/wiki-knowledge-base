@@ -1,3 +1,4 @@
+# python_project_template/Dockerfile
 FROM python:3.12.7-slim-bookworm
 
 ARG UV_VERSION=0.5.5
