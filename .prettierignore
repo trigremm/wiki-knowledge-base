@@ -1,0 +1,102 @@
+# Dependencies
+node_modules
+bower_components
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist
+build
+coverage
+.next
+out
+.nuxt
+.output
+
+# Cache directories
+.cache
+.temp
+.tmp
+.eslintcache
+.stylelintcache
+
+# Version control
+.git
+.gitignore
+.svn
+.hg
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+*.swn
+*.bak
+
+# Generated files
+*.min.js
+*.min.css
+*.bundle.js
+*.generated.*
+
+# Compiled outputs
+*.pyc
+__pycache__
+*.class
+*.jar
+
+# Documentation
+docs
+*.md
+LICENSE
+README
+
+# Media and binary files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+*.zip
+*.tar.gz
+*.tgz
+
+# Config files
+.env*
+.editorconfig
+.prettierrc
+.eslintrc
+.babelrc
+
+# Large files and data
+*.log
+*.csv
+*.xls
+*.xlsx
+*.db
+*.sqlite
+
+# Test fixtures and snapshots
+__tests__/__fixtures__
+__tests__/__snapshots__
+
+
+# MyPy cache files
+.mypy_cache/
+**/.mypy_cache/
+.mypy_cache/**/*.json
+.mypy_cache/**/*.meta.json
+.mypy_cache/**/*.data.json
+
+# Other common cache directories
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Build and distribution
+build/
+dist/
+*.egg-info/

@@ -1,0 +1,26 @@
+# General settings
+line-length = 120
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+]
+ignore = [
+    "D",     # ignore docstring requirements
+]
+
+# Fix specific docstring issues
+[lint.pydocstyle]
+convention = "google"
+
+[lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
