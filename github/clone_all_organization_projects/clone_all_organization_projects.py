@@ -1,8 +1,8 @@
 # github/clone_all_organization_projects/clone_all_organization_projects.py
 import os
 
-import requests
 from env_variables import CLONE_DIR, GITHUB_TOKEN, ORG_NAME
+import requests
 
 headers = {
     "Authorization": f"token {GITHUB_TOKEN}",

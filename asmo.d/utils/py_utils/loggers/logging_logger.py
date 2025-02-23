@@ -17,7 +17,6 @@ logging_settings = LoggingSettings()
 
 def get_logger(name: str = __name__, level: str = None) -> logging.Logger:
     """Get a logger instance"""
-
     logger = logging.getLogger(name)
 
     if not logger.handlers:

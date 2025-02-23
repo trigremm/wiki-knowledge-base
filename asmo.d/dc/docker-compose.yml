@@ -13,9 +13,9 @@ services:
     platform: linux/amd64
     image: postgres:latest
     ports:
-      - "8252:5432"
+      - '8252:5432'
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,9 +30,9 @@ services:
     platform: linux/amd64
     image: redis:latest
     ports:
-      - "8259:6379"
+      - '8259:6379'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 10s
       retries: 10
@@ -46,10 +46,10 @@ services:
     platform: linux/amd64
     image: rabbitmq:latest
     ports:
-      - "8256:5672"
-      - "8257:15672"
+      - '8256:5672'
+      - '8257:15672'
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: ['CMD', 'rabbitmqctl', 'status']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -63,10 +63,10 @@ services:
     platform: linux/amd64
     image: node:14
     ports:
-      - "8250:3000"
+      - '8250:3000'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -77,10 +77,10 @@ services:
     platform: linux/amd64
     image: python:3.9
     ports:
-      - "8498:8000"
+      - '8498:8000'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/health/']
       interval: 30s
       timeout: 10s
       retries: 5
