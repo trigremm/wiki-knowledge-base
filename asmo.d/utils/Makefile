@@ -17,3 +17,14 @@ generate_howto_deploy:
 
 generate_password:
 	@echo python ${PY_UTILD_DIR}/generate_password.py
+
+format: # add_file_path_comment
+	# npm install -g prettier
+	# prettier --write *.yml
+	# For modified files
+	git ls-files -m "*.py" | xargs ruff check --fix || true
+	git ls-files -m "*.py" | xargs ruff format
+
+	# For untracked (new) files
+	git ls-files --others --exclude-standard "*.py" | xargs ruff check --fix || true
+	git ls-files --others --exclude-standard "*.py" | xargs ruff format
