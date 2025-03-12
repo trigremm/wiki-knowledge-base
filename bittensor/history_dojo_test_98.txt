@@ -1,0 +1,21 @@
+# create wallet
+btcli wallet create
+ls  ~/.bittensor/wallets/dojo_test_98
+cat ~/.bittensor/wallets/dojo_test_98/coldkey_mnemonic.txt
+cat ~/.bittensor/wallets/dojo_test_98/hotkey_mnemonic.txt
+cat ~/.bittensor/wallets/dojo_test_98/password_for_encryption.txt
+
+# check balance
+btcli wallet inspect --wallet.name dojo_test_98
+
+# request for tokens
+
+52 for mainnet
+98 for testnet
+
+Reason: i want to test the miner role in Dojo Subnet 98 and i have my coldkey mnemonic written down in a safe place
+o Testnet netuid: 98
+o Mainnet netuid: 52
+o Roles: miner
+o Coldkey: 5DP2NtWQBj4gb8vuDT2SFvLrmyzNaNoiaCGqXRPtz7G4MX2n
+o Do you have your mnemonic phrase for the coldkey written down in a safe place?  Yes
