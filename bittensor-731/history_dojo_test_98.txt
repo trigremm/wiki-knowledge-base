@@ -6,7 +6,7 @@ cat ~/.bittensor/wallets/dojo_test_98/hotkey_mnemonic.txt
 cat ~/.bittensor/wallets/dojo_test_98/password_for_encryption.txt
 
 # check balance
-btcli wallet inspect --wallet.name dojo_test_98
+btcli wallet inspect --wallet.name dojo_test_98 --subtensor.network test
 
 # request for tokens
 
