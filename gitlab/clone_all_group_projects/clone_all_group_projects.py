@@ -14,4 +14,6 @@ os.makedirs(CLONE_DIR, exist_ok=True)
 
 # Clone each project
 for project in group.projects.list(all=True):
-    os.system(f"git clone {project.ssh_url_to_repo} {os.path.join(CLONE_DIR, project.path)}")
+    os.system(
+        f"git clone {project.ssh_url_to_repo} {os.path.join(CLONE_DIR, project.path)}"
+    )

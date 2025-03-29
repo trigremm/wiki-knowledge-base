@@ -25,7 +25,9 @@ def get_logger(name: str = __name__, level: str = None) -> logging.Logger:
         logger.setLevel(logger_level)
 
         # Create a formatter
-        formatter = logging.Formatter("%(asctime)s | %(name)s | %(levelname)s | %(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
+        )
 
         # Create a console handler
         console_handler = logging.StreamHandler(sys.stdout)
