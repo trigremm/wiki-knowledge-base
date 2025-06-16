@@ -1,8 +1,10 @@
+# asmo.d/utils/py_utils/add_file_path_comment.py
 import argparse
 import os
-from typing import List, Union
+from typing import List
+from typing import Union
 
-SUPPORTED_EXTS = [".py", ".yaml", ".yml", ".js", ".ts", ".html", ".vue"]
+SUPPORTED_EXTS = [".py", ".yaml", ".yml", ".js", ".ts", ".html", ".vue", ".mk"]
 SUPPORTED_FILENAMES = ["Dockerfile", "Makefile"]
 DEFAULT_IGNORE_DIRS = [
     "migrations",
@@ -26,11 +28,64 @@ def get_comment_syntax(file_name, ext) -> Union[str, tuple, None]:
 
 
 def should_process(file_name, ext):
-    return (
-        file_name in SUPPORTED_FILENAMES
-        or ext in SUPPORTED_EXTS
-        or file_name.endswith(".mk")
-    )
+    return file_name in SUPPORTED_FILENAMES or ext in SUPPORTED_EXTS
+
+
+def is_file_path_comment(line: str, comment_syntax: Union[str, tuple]) -> bool:
+    """Проверяет, является ли строка комментарием с путем файла"""
+    line = line.strip()
+
+    if isinstance(comment_syntax, tuple):
+        # Для HTML-комментариев: <!-- path -->
+        if line.startswith(comment_syntax[0]) and line.endswith(comment_syntax[1]):
+            content = line[len(comment_syntax[0]) : -len(comment_syntax[1])].strip()
+            # Проверяем, что это похоже на путь к файлу
+            return _looks_like_file_path(content)
+    else:
+        # Для обычных комментариев: # path или // path
+        if line.startswith(comment_syntax):
+            content = line[len(comment_syntax) :].strip()
+            # Проверяем, что это похоже на путь к файлу
+            return _looks_like_file_path(content)
+
+    return False
+
+
+def _looks_like_file_path(content: str) -> bool:
+    """Проверяет, похожа ли строка на путь к файлу"""
+    if not content:
+        return False
+
+    # Получаем имя файла (последняя часть пути)
+    file_name = content.split("/")[-1].split("\\")[-1]
+
+    # Проверяем известные файлы без расширения
+    known_files_without_ext = ["Dockerfile", "Makefile"]
+    if file_name in known_files_without_ext:
+        return True
+
+    # Для остальных файлов - должно быть расширение
+    if "." not in content:
+        return False
+
+    # Получаем потенциальное расширение (последняя часть после точки)
+    parts = content.split(".")
+    if len(parts) < 2:
+        return False
+
+    extension = parts[-1].lower()
+
+    # Проверяем, что расширение состоит только из букв/цифр и имеет разумную длину
+    if not extension.isalnum() or len(extension) > 10 or len(extension) < 1:
+        return False
+
+    # Дополнительные проверки:
+    # - Разумная длина всего пути
+    # - Не содержит недопустимые символы для пути
+    reasonable_length = len(content) < 200
+    no_invalid_chars = not any(char in content for char in ["<", ">", "|", '"', "*", "?"])
+
+    return reasonable_length and no_invalid_chars
 
 
 def process_file(file_path: str, root_dir: str = "."):
@@ -57,23 +112,23 @@ def process_file(file_path: str, root_dir: str = "."):
 
     rel_path = os.path.relpath(file_path, root_dir)
 
-    # Remove existing comment if it's the first line and matches pattern
+    # Удаляем существующий комментарий с путем файла, если он есть в первой строке
+    if lines and is_file_path_comment(lines[0], comment_syntax):
+        lines.pop(0)
+    if lines and is_file_path_comment(lines[0], comment_syntax):
+        lines.pop(0)
+
+    # Создаем новый комментарий
     if isinstance(comment_syntax, tuple):
-        if (
-            lines
-            and lines[0].strip().startswith(comment_syntax[0])
-            and lines[0].strip().endswith(comment_syntax[1])
-        ):
-            lines.pop(0)
         new_comment = f"{comment_syntax[0]} {rel_path} {comment_syntax[1]}\n"
     else:
-        if lines and lines[0].strip().startswith(comment_syntax):
-            lines.pop(0)
         new_comment = f"{comment_syntax} {rel_path}\n"
 
+    # Удаляем пустые строки в начале
     while lines and lines[0].strip() == "":
         lines.pop(0)
 
+    # Вставляем новый комментарий
     lines.insert(0, new_comment)
 
     with open(file_path, "w", encoding="utf-8") as f:

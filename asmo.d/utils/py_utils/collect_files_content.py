@@ -1,5 +1,5 @@
+# asmo.d/utils/py_utils/collect_files_content.py
 import argparse
-import os
 from pathlib import Path
 
 DEFAULT_IGNORE = {
@@ -73,9 +73,7 @@ def collect_file_contents(
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate a text file containing contents of project files."
-    )
+    parser = argparse.ArgumentParser(description="Generate a text file containing contents of project files.")
     parser.add_argument("-p", "--path", required=True, help="Directory to scan")
     parser.add_argument("-o", "--output", default="prompt.txt", help="Output file")
     parser.add_argument("-i", "--ignore", nargs="*", help="Additional ignore patterns")
@@ -90,28 +88,20 @@ def main():
     ignore_patterns = DEFAULT_IGNORE.union(set(args.ignore or []))
 
     include_exts = (
-        set(
-            f".{ext.strip()}" if not ext.startswith(".") else ext.strip()
-            for ext in args.include.split(",")
-        )
+        set(f".{ext.strip()}" if not ext.startswith(".") else ext.strip() for ext in args.include.split(","))
         if args.include
         else DEFAULT_EXTENSIONS
     )
 
     exclude_exts = (
-        set(
-            f".{ext.strip()}" if not ext.startswith(".") else ext.strip()
-            for ext in args.exclude.split(",")
-        )
+        set(f".{ext.strip()}" if not ext.startswith(".") else ext.strip() for ext in args.exclude.split(","))
         if args.exclude
         else set()
     )
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    collect_file_contents(
-        path, output_file, include_exts, exclude_exts, ignore_patterns
-    )
+    collect_file_contents(path, output_file, include_exts, exclude_exts, ignore_patterns)
 
     print(f"\n✅ Written to: {output_file}")
     print(f"Ignored: {sorted(ignore_patterns)}")

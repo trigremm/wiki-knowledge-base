@@ -57,9 +57,7 @@ systemctl restart nginx
 
 def validate_repo_url(repo_url):
     if not repo_url.startswith(("https://gitlab.com/", "https://github.com/")):
-        raise argparse.ArgumentTypeError(
-            "Repo URL must start with 'https://gitlab.com/' or 'https://github.com/'"
-        )
+        raise argparse.ArgumentTypeError("Repo URL must start with 'https://gitlab.com/' or 'https://github.com/'")
     return repo_url
 
 
@@ -70,9 +68,7 @@ def validate_output_dir(directory):
         path.mkdir(parents=True, exist_ok=True)
         return str(path)
     except Exception as e:
-        raise argparse.ArgumentTypeError(
-            f"Error creating directory {directory}: {str(e)}"
-        )
+        raise argparse.ArgumentTypeError(f"Error creating directory {directory}: {str(e)}")
 
 
 def parse_args():

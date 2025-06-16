@@ -1,7 +1,9 @@
 # gitlab/clone_all_group_projects/clone_all_group_projects.py
 import os
 
-from env_variables import ACCESS_TOKEN, CLONE_DIR, GROUP_ID
+from env_variables import ACCESS_TOKEN
+from env_variables import CLONE_DIR
+from env_variables import GROUP_ID
 
 import gitlab
 
@@ -14,6 +16,4 @@ os.makedirs(CLONE_DIR, exist_ok=True)
 
 # Clone each project
 for project in group.projects.list(all=True):
-    os.system(
-        f"git clone {project.ssh_url_to_repo} {os.path.join(CLONE_DIR, project.path)}"
-    )
+    os.system(f"git clone {project.ssh_url_to_repo} {os.path.join(CLONE_DIR, project.path)}")
