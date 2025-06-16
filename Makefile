@@ -1,5 +1,7 @@
 # Makefile
-.PHONY: add_file_path_comment black-format isort-format format f
+.PHONY: prompt
+.PHONY: clean
+.PHONY: add_file_path_comment prettier autoflake-format isort-format black-format ruff-check ruff-format format f
 
 prompt:
 	python asmo.d/utils/py_utils/collect_files_content.py -p backend -o prompt_backend.txt
