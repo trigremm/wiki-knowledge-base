@@ -1,10 +1,18 @@
 # asmo.d/utils/py_utils/add_file_path_comment.py
+"""
+Add file path comments to files with best features from both versions.
+Combines flexibility of stdin/files with smart directory processing.
+"""
+
 import argparse
 import os
+import sys
 from typing import List
+from typing import Tuple
 from typing import Union
 
-SUPPORTED_EXTS = [".py", ".yaml", ".yml", ".js", ".ts", ".html", ".vue", ".mk"]
+# Configuration
+SUPPORTED_EXTENSIONS = [".py", ".yaml", ".yml", ".js", ".ts", ".html", ".vue", ".mk", ".hurl"]
 SUPPORTED_FILENAMES = ["Dockerfile", "Makefile"]
 DEFAULT_IGNORE_DIRS = [
     "migrations",
@@ -12,159 +20,300 @@ DEFAULT_IGNORE_DIRS = [
     "dist",
     "build",
     ".docker_volumes",
+    "docker_volumes",
     ".git",
     ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    "venv",
+    "env",
 ]
 
 
-def get_comment_syntax(file_name, ext) -> Union[str, tuple, None]:
-    if file_name in SUPPORTED_FILENAMES or ext in [".py", ".yaml", ".yml", ".mk"]:
+def get_comment_syntax(file_name: str, file_ext: str) -> Union[str, Tuple[str, str], None]:
+    """Get appropriate comment syntax for file."""
+    # Hash style: # comment
+    if file_name in SUPPORTED_FILENAMES or file_ext in [".py", ".yaml", ".yml", ".mk", ".hurl"]:
         return "#"
-    elif ext in [".js", ".ts"]:
+
+    # Slash style: // comment
+    elif file_ext in [".js", ".ts"]:
         return "//"
-    elif ext in [".html", ".vue"]:
+
+    # HTML style: <!-- comment -->
+    elif file_ext in [".html", ".vue"]:
         return ("<!--", "-->")
+
     return None
 
 
-def should_process(file_name, ext):
-    return file_name in SUPPORTED_FILENAMES or ext in SUPPORTED_EXTS
+def should_process_file(file_name: str, file_ext: str) -> bool:
+    """Check if file should be processed."""
+    return file_name in SUPPORTED_FILENAMES or file_ext in SUPPORTED_EXTENSIONS
 
 
-def is_file_path_comment(line: str, comment_syntax: Union[str, tuple]) -> bool:
-    """Проверяет, является ли строка комментарием с путем файла"""
+def is_file_path_comment(line: str, comment_syntax: Union[str, Tuple[str, str]]) -> bool:
+    """
+    Advanced check if line is a file path comment.
+    Combines logic from both scripts for better accuracy.
+    """
     line = line.strip()
+    if not line:
+        return False
 
     if isinstance(comment_syntax, tuple):
-        # Для HTML-комментариев: <!-- path -->
+        # HTML-style comments: <!-- path -->
         if line.startswith(comment_syntax[0]) and line.endswith(comment_syntax[1]):
             content = line[len(comment_syntax[0]) : -len(comment_syntax[1])].strip()
-            # Проверяем, что это похоже на путь к файлу
             return _looks_like_file_path(content)
     else:
-        # Для обычных комментариев: # path или // path
+        # Regular comments: # path or // path
         if line.startswith(comment_syntax):
             content = line[len(comment_syntax) :].strip()
-            # Проверяем, что это похоже на путь к файлу
             return _looks_like_file_path(content)
 
     return False
 
 
 def _looks_like_file_path(content: str) -> bool:
-    """Проверяет, похожа ли строка на путь к файлу"""
-    if not content:
+    """
+    Enhanced file path detection combining both approaches.
+    """
+    if not content or len(content) > 200:
         return False
 
-    # Получаем имя файла (последняя часть пути)
+    # Check for invalid path characters
+    invalid_chars = ["<", ">", "|", '"', "*", "?"]
+    if any(char in content for char in invalid_chars):
+        return False
+
+    # Get filename (last part of path)
     file_name = content.split("/")[-1].split("\\")[-1]
 
-    # Проверяем известные файлы без расширения
-    known_files_without_ext = ["Dockerfile", "Makefile"]
-    if file_name in known_files_without_ext:
+    # Known files without extension
+    if file_name in SUPPORTED_FILENAMES:
         return True
 
-    # Для остальных файлов - должно быть расширение
-    if "." not in content:
-        return False
+    # Files with supported extensions
+    if "." in content:
+        ext = os.path.splitext(content)[1].lower()
+        if ext in SUPPORTED_EXTENSIONS:
+            return True
 
-    # Получаем потенциальное расширение (последняя часть после точки)
-    parts = content.split(".")
-    if len(parts) < 2:
-        return False
-
-    extension = parts[-1].lower()
-
-    # Проверяем, что расширение состоит только из букв/цифр и имеет разумную длину
-    if not extension.isalnum() or len(extension) > 10 or len(extension) < 1:
-        return False
-
-    # Дополнительные проверки:
-    # - Разумная длина всего пути
-    # - Не содержит недопустимые символы для пути
-    reasonable_length = len(content) < 200
-    no_invalid_chars = not any(char in content for char in ["<", ">", "|", '"', "*", "?"])
-
-    return reasonable_length and no_invalid_chars
+    return False
 
 
-def process_file(file_path: str, root_dir: str = "."):
+def process_single_file(file_path: str, root_dir: str) -> str:
+    """
+    Process single file with enhanced error handling and logic.
+    Returns: 'updated', 'unchanged', 'skipped', or 'error'
+    """
     file_name = os.path.basename(file_path)
     file_ext = os.path.splitext(file_name)[1].lower()
 
-    if not should_process(file_name, file_ext):
-        return
+    # Check if file should be processed
+    if not should_process_file(file_name, file_ext):
+        return "skipped"
 
+    # Get comment syntax
     comment_syntax = get_comment_syntax(file_name, file_ext)
     if not comment_syntax:
-        print(f"Skipping unsupported type: {file_path}")
-        return
+        return "skipped"
+
+    # Get relative path
+    try:
+        rel_path = os.path.relpath(file_path, root_dir)
+    except ValueError:
+        rel_path = file_path
 
     try:
+        # Read file
         with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
-    except (FileNotFoundError, UnicodeDecodeError) as e:
-        print(f"Skipping {file_path}: {e}")
-        return
 
-    if not lines or all(line.strip() == "" for line in lines):
-        return
+        # Skip empty files
+        if not lines or all(line.strip() == "" for line in lines):
+            return "skipped"
 
-    rel_path = os.path.relpath(file_path, root_dir)
+        # Remove existing file path comments (enhanced removal)
+        len(lines)
+        removed_count = 0
 
-    # Удаляем существующий комментарий с путем файла, если он есть в первой строке
-    if lines and is_file_path_comment(lines[0], comment_syntax):
-        lines.pop(0)
-    if lines and is_file_path_comment(lines[0], comment_syntax):
-        lines.pop(0)
+        # Remove multiple existing comments if present
+        while lines and removed_count < 3 and is_file_path_comment(lines[0], comment_syntax):  # Safety limit
+            lines.pop(0)
+            removed_count += 1
 
-    # Создаем новый комментарий
-    if isinstance(comment_syntax, tuple):
-        new_comment = f"{comment_syntax[0]} {rel_path} {comment_syntax[1]}\n"
-    else:
-        new_comment = f"{comment_syntax} {rel_path}\n"
+        # Remove leading empty lines
+        while lines and lines[0].strip() == "":
+            lines.pop(0)
 
-    # Удаляем пустые строки в начале
-    while lines and lines[0].strip() == "":
-        lines.pop(0)
+        # Create new comment
+        if isinstance(comment_syntax, tuple):
+            new_comment = f"{comment_syntax[0]} {rel_path} {comment_syntax[1]}\n"
+        else:
+            new_comment = f"{comment_syntax} {rel_path}\n"
 
-    # Вставляем новый комментарий
-    lines.insert(0, new_comment)
+        # Check if update is needed
+        if not lines or lines[0].strip() != new_comment.strip():
+            lines.insert(0, new_comment)
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.writelines(lines)
+            # Write back to file
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.writelines(lines)
 
-    print(f"Updated: {rel_path}")
+            return "updated"
+        else:
+            return "unchanged"
+
+    except Exception as e:
+        print(f"Error processing '{file_path}': {e}", file=sys.stderr)
+        return "error"
 
 
-def run_on_directory(root_dir: str, ignore_dirs: List[str]):
-    for root, _, files in os.walk(root_dir):
+def collect_files_from_directory(root_dir: str, ignore_dirs: List[str]) -> List[str]:
+    """Collect all processable files from directory."""
+    files = []
+
+    for root, dirs, filenames in os.walk(root_dir):
+        # Remove ignored directories from search
+        dirs[:] = [d for d in dirs if d not in ignore_dirs]
+
+        # Skip if current directory is in ignore list
         if any(ignored in root.split(os.sep) for ignored in ignore_dirs):
             continue
 
-        for file in files:
-            file_path = os.path.join(root, file)
-            process_file(file_path, root_dir=root_dir)
+        for filename in filenames:
+            file_path = os.path.join(root, filename)
+            file_ext = os.path.splitext(filename)[1].lower()
+
+            if should_process_file(filename, file_ext):
+                files.append(file_path)
+
+    return files
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Add file path comment to files.")
+def process_files(file_list: List[str], root_dir: str, verbose: bool = False) -> None:
+    """Process list of files with detailed reporting."""
+    if not file_list:
+        print("No files to process.")
+        return
 
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-d", "--directory", help="Directory to scan recursively")
-    group.add_argument("-f", "--files", nargs="+", help="Specific files to process")
+    print(f"Processing {len(file_list)} files...")
 
-    parser.add_argument(
-        "--ignore-dirs",
-        nargs="*",
-        default=DEFAULT_IGNORE_DIRS,
-        help="List of directory names to ignore when using --directory",
+    # Counters for summary
+    stats = {"updated": 0, "unchanged": 0, "skipped": 0, "error": 0}
+
+    for file_path in file_list:
+        # Convert to absolute path
+        if not os.path.isabs(file_path):
+            file_path = os.path.abspath(os.path.join(root_dir, file_path))
+
+        # Check if file exists
+        if not os.path.exists(file_path):
+            if verbose:
+                print(f"File not found: {file_path}")
+            stats["error"] += 1
+            continue
+
+        # Process file
+        result = process_single_file(file_path, root_dir)
+        stats[result] += 1
+
+        if verbose or result == "updated":
+            rel_path = os.path.relpath(file_path, root_dir)
+            if result == "updated":
+                print(f"✅ Updated: {rel_path}")
+            elif result == "error":
+                print(f"❌ Error: {rel_path}")
+            elif verbose and result == "skipped":
+                print(f"⏭️  Skipped: {rel_path}")
+
+    # Print summary
+    total = sum(stats.values())
+    print(f"\n📊 Summary:")
+    print(f"   Updated: {stats['updated']}")
+    print(f"   Unchanged: {stats['unchanged']}")
+    print(f"   Skipped: {stats['skipped']}")
+    print(f"   Errors: {stats['error']}")
+    print(f"   Total: {total}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Add file path comments to source files",
+        epilog="""Examples:
+  # Process specific files
+  %(prog)s -f file1.py file2.js
+
+  # Process entire directory
+  %(prog)s -d ./src
+
+  # Use with git (modified files)
+  git ls-files --modified | %(prog)s --stdin
+
+  # Use with find
+  find . -name "*.py" | %(prog)s --stdin
+
+  # Combine stdin and files
+  echo "extra.py" | %(prog)s --stdin -f main.py
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+
+    # Input options (can be combined)
+    parser.add_argument("-f", "--files", nargs="*", default=[], help="Specific files to process")
+    parser.add_argument("--stdin", action="store_true", help="Read additional files from stdin")
+    parser.add_argument("-d", "--directory", help="Process all supported files in directory recursively")
+
+    # Configuration options
+    parser.add_argument("--root", default=".", help="Root directory for relative paths (default: current dir)")
+    parser.add_argument(
+        "--ignore-dirs", nargs="*", default=DEFAULT_IGNORE_DIRS, help="Directories to ignore when using --directory"
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
 
     args = parser.parse_args()
 
+    # Collect all files to process
+    all_files = []
+
+    # Add files from --files
+    if args.files:
+        all_files.extend(args.files)
+
+    # Add files from stdin
+    if args.stdin:
+        stdin_files = [line.strip() for line in sys.stdin if line.strip()]
+        all_files.extend(stdin_files)
+
+    # Add files from directory
     if args.directory:
-        run_on_directory(args.directory, args.ignore_dirs)
-    elif args.files:
-        for file in args.files:
-            process_file(file)
+        if not os.path.isdir(args.directory):
+            print(f"Error: Directory '{args.directory}' does not exist", file=sys.stderr)
+            sys.exit(1)
+
+        dir_files = collect_files_from_directory(args.directory, args.ignore_dirs)
+        all_files.extend(dir_files)
+
+    # Validate input
+    if not all_files:
+        print("Error: No files to process.", file=sys.stderr)
+        print("Use -f, --stdin, or -d to specify files.", file=sys.stderr)
+        parser.print_help()
+        sys.exit(1)
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_files = []
+    for f in all_files:
+        if f not in seen:
+            seen.add(f)
+            unique_files.append(f)
+
+    # Process files
+    process_files(unique_files, args.root, args.verbose)
+
+
+if __name__ == "__main__":
+    main()

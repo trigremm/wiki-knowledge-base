@@ -31,6 +31,10 @@ ruff_check:
 ruff_format:
 	@ruff format .
 
+nginx_format:
+	# pip install nginxfmt
+	nginxfmt -i 4 -r .conf.d/* || true
+
 format: clean add_file_path_comment prettier autoflake-format isort-format black-format # ruff_check ruff_format
 
 f: format
