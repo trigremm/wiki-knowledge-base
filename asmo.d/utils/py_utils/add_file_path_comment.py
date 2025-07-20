@@ -205,10 +205,6 @@ def process_files(file_list: List[str], root_dir: str, verbose: bool = False) ->
     stats = {"updated": 0, "unchanged": 0, "skipped": 0, "error": 0}
 
     for file_path in file_list:
-        # Convert to absolute path
-        if not os.path.isabs(file_path):
-            file_path = os.path.abspath(os.path.join(root_dir, file_path))
-
         # Check if file exists
         if not os.path.exists(file_path):
             if verbose:
@@ -216,12 +212,16 @@ def process_files(file_list: List[str], root_dir: str, verbose: bool = False) ->
             stats["error"] += 1
             continue
 
-        # Process file
+        # Process file - the root_dir is used inside process_single_file for calculating relative paths
         result = process_single_file(file_path, root_dir)
         stats[result] += 1
 
         if verbose or result == "updated":
-            rel_path = os.path.relpath(file_path, root_dir)
+            try:
+                rel_path = os.path.relpath(file_path, root_dir)
+            except ValueError:
+                rel_path = file_path
+
             if result == "updated":
                 print(f"✅ Updated: {rel_path}")
             elif result == "error":
@@ -246,7 +246,7 @@ def main():
   # Process specific files
   %(prog)s -f file1.py file2.js
 
-  # Process entire directory
+  # Process entire directory (uses directory as root for relative paths)
   %(prog)s -d ./src
 
   # Use with git (modified files)
@@ -264,16 +264,32 @@ def main():
     # Input options (can be combined)
     parser.add_argument("-f", "--files", nargs="*", default=[], help="Specific files to process")
     parser.add_argument("--stdin", action="store_true", help="Read additional files from stdin")
-    parser.add_argument("-d", "--directory", help="Process all supported files in directory recursively")
+    parser.add_argument(
+        "-d",
+        "--directory",
+        help="Process all supported files in directory recursively (uses directory as root for relative paths)",
+    )
 
     # Configuration options
-    parser.add_argument("--root", default=".", help="Root directory for relative paths (default: current dir)")
+    parser.add_argument(
+        "--root", help="Root directory for relative paths (default: current dir, or directory specified with -d)"
+    )
     parser.add_argument(
         "--ignore-dirs", nargs="*", default=DEFAULT_IGNORE_DIRS, help="Directories to ignore when using --directory"
     )
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
 
     args = parser.parse_args()
+
+    # Determine root directory
+    if args.root:
+        root_dir = args.root
+    elif args.directory:
+        # When using -d, use that directory as root for relative paths
+        # This means files will be relative to the directory being scanned
+        root_dir = args.directory
+    else:
+        root_dir = "."
 
     # Collect all files to process
     all_files = []
@@ -312,7 +328,7 @@ def main():
             unique_files.append(f)
 
     # Process files
-    process_files(unique_files, args.root, args.verbose)
+    process_files(unique_files, root_dir, args.verbose)
 
 
 if __name__ == "__main__":
