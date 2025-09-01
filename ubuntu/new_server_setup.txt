@@ -19,6 +19,8 @@ apt install -y certbot python3-certbot-nginx
 ### install docker
 [https://docs.docker.com/engine/install/ubuntu/](https://docs.docker.com/engine/install/ubuntu/)
 
+sudo usermod -aG docker ubuntu
+
 ### add swap
 ```shell
 sudo swapon --show
