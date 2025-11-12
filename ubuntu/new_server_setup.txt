@@ -3,17 +3,20 @@
 ### set hostname
 ```shell
 hostnamectl set-hostname <new-hostname>
+
 ```
 
 ### general setup
 ```shell
 apt update
+apt upgrade -y
 
 apt install -y htop vim tree
 apt install -y wget curl rsync
 apt install -y git make
 apt install -y nginx
 apt install -y certbot python3-certbot-nginx
+
 ```
 
 ### install docker
@@ -36,5 +39,12 @@ echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
 
 sudo swapon --show
 free -h
+
+```
+
+### mkdir workspace dir
+```shell
+sudo mkdir -p /workspace
+sudo chown -R ubuntu:ubuntu /workspace
 
 ```
